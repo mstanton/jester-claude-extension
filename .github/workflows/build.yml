@@ -1,0 +1,432 @@
+# Claude-Jester Desktop Extension CI/CD Pipeline
+# Automated building, testing, and deployment workflow
+
+name: 🃏 Claude-Jester Desktop Extension
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly security and dependency updates
+    - cron: '0 2 * * 1'
+
+env:
+  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '18'
+
+jobs:
+  # ===== CODE QUALITY AND SECURITY =====
+  lint-and-security:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort bandit safety mypy
+        pip install -r requirements.txt
+        
+    - name: 🎨 Code Formatting Check
+      run: |
+        black --check --diff server/ tests/
+        isort --check-only --diff server/ tests/
+        
+    - name: 🔍 Lint Code
+      run: |
+        flake8 server/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+        
+    - name: 🔒 Security Scan (Bandit)
+      run: |
+        bandit -r server/ -ll -f json -o bandit-report.json
+        bandit -r server/ -ll
+        
+    - name: 🛡️ Dependency Security Check
+      run: |
+        safety check --json --output safety-report.json
+        safety check
+        
+    - name: 📝 Type Checking
+      run: |
+        mypy server/ --ignore-missing-imports --no-strict-optional
+        
+    - name: 📄 Upload Security Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  # ===== TESTING =====
+  test:
+    name: 🧪 Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: 🐳 Setup Podman (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y podman
+        podman --version
+        
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio pytest-cov pytest-mock
+        pip install -r requirements.txt
+        
+    - name: 🧪 Run Tests
+      env:
+        CLAUDE_JESTER_TEST_MODE: "true"
+        CLAUDE_JESTER_LOG_LEVEL: "DEBUG"
+      run: |
+        pytest tests/ -v --cov=server --cov-report=xml --cov-report=html
+        
+    - name: 📊 Upload Coverage
+      uses: codecov/codecov-action@v3
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        
+    - name: 📄 Upload Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.python-version }}
+        path: |
+          htmlcov/
+          pytest-report.xml
+
+  # ===== PERFORMANCE BENCHMARKS =====
+  benchmark:
+    name: ⚡ Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 🐳 Setup Podman
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y podman
+        
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-benchmark
+        pip install -r requirements.txt
+        
+    - name: ⚡ Run Benchmarks
+      run: |
+        pytest tests/test_performance.py --benchmark-only --benchmark-json=benchmark.json
+        
+    - name: 📊 Upload Benchmark Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: benchmark.json
+
+  # ===== BUILD EXTENSION =====
+  build:
+    name: 🔨 Build Extension
+    runs-on: ${{ matrix.os }}
+    needs: [lint-and-security, test]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📦 Install Build Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build setuptools wheel
+        pip install -r requirements.txt
+        
+    - name: 🔨 Build Extension Package
+      run: |
+        python scripts/build.py
+        
+    - name: 🔍 Validate Package
+      run: |
+        python scripts/build.py --validate-only
+        
+    - name: 📄 Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: claude-jester-${{ matrix.os }}
+        path: |
+          dist/*.dxt
+          dist/*.json
+          dist/installation/
+        retention-days: 30
+
+  # ===== INTEGRATION TESTS =====
+  integration-test:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📥 Download Build Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: claude-jester-ubuntu-latest
+        path: dist/
+        
+    - name: 🐳 Setup Test Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y podman unzip
+        
+    - name: 📦 Install Test Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio
+        pip install -r requirements.txt
+        
+    - name: 🧪 Test Extension Package
+      run: |
+        # Extract and test the built extension
+        cd dist/
+        unzip -q *.dxt -d test-extension/
+        cd test-extension/
+        python -m pytest ../../../tests/test_integration.py -v
+        
+    - name: 📊 Test MCP Protocol Compliance
+      run: |
+        python tests/test_mcp_compliance.py
+
+  # ===== SECURITY AUDIT =====
+  security-audit:
+    name: 🛡️ Security Audit
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📥 Download Build Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: claude-jester-ubuntu-latest
+        path: dist/
+        
+    - name: 🔍 Audit Extension Package
+      run: |
+        # Unzip and analyze the extension package
+        cd dist/
+        unzip -q *.dxt -d audit/
+        
+        # Check for suspicious files
+        find audit/ -name "*.py" -exec echo "Scanning: {}" \;
+        find audit/ -name "*.py" -exec grep -l "eval\|exec\|__import__" {} \; || true
+        
+        # Check package integrity
+        sha256sum *.dxt > package-checksums.txt
+        
+    - name: 📊 Upload Audit Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-audit
+        path: |
+          dist/package-checksums.txt
+          dist/audit/
+
+  # ===== RELEASE =====
+  release:
+    name: 🚀 Release
+    runs-on: ubuntu-latest
+    needs: [integration-test, security-audit, benchmark]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📥 Download All Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts/
+        
+    - name: 📦 Prepare Release Assets
+      run: |
+        mkdir -p release/
+        
+        # Copy extension packages
+        cp artifacts/claude-jester-ubuntu-latest/*.dxt release/
+        cp artifacts/claude-jester-windows-latest/*.dxt release/
+        cp artifacts/claude-jester-macos-latest/*.dxt release/
+        
+        # Copy installation scripts
+        cp -r artifacts/claude-jester-ubuntu-latest/installation/ release/
+        
+        # Copy documentation
+        cp README.md CHANGELOG.md LICENSE release/
+        
+        # Create checksums
+        cd release/
+        sha256sum *.dxt > SHA256SUMS
+        
+        # Create release notes
+        echo "# Claude-Jester Desktop Extension ${GITHUB_REF#refs/tags/}" > RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🃏 Revolutionary AI Code Execution Platform" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "### ✨ New Features" >> RELEASE_NOTES.md
+        echo "- Quantum debugging with parallel algorithm testing" >> RELEASE_NOTES.md
+        echo "- Enterprise-grade Podman containerization" >> RELEASE_NOTES.md
+        echo "- Desktop notifications and OS integration" >> RELEASE_NOTES.md
+        echo "- Advanced security analysis and compliance" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "### 📦 Installation" >> RELEASE_NOTES.md
+        echo "1. Download the appropriate .dxt file for your platform" >> RELEASE_NOTES.md
+        echo "2. Open Claude Desktop" >> RELEASE_NOTES.md
+        echo "3. Go to Settings > Extensions" >> RELEASE_NOTES.md
+        echo "4. Drag and drop the .dxt file" >> RELEASE_NOTES.md
+        echo "5. Configure preferences and start quantum debugging!" >> RELEASE_NOTES.md
+        
+    - name: 🎉 Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          release/*.dxt
+          release/SHA256SUMS
+          release/installation/*
+          release/README.md
+          release/CHANGELOG.md
+          release/LICENSE
+        body_path: release/RELEASE_NOTES.md
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 📧 Notify Team
+      if: success()
+      run: |
+        echo "🎉 Claude-Jester Desktop Extension ${GITHUB_REF#refs/tags/} has been released!"
+        echo "📦 Download: https://github.com/${{ github.repository }}/releases/latest"
+
+  # ===== DEPLOYMENT =====
+  deploy-docs:
+    name: 📚 Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📚 Build Documentation
+      run: |
+        pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+        
+        # Create documentation site
+        mkdir -p docs/
+        cp README.md docs/index.md
+        cp docs/*.md docs/ 2>/dev/null || true
+        
+        # Build site
+        mkdocs build
+        
+    - name: 🚀 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+
+  # ===== NOTIFY SUCCESS =====
+  notify-success:
+    name: 🎉 Notify Success
+    runs-on: ubuntu-latest
+    needs: [release, deploy-docs]
+    if: always() && (needs.release.result == 'success' || needs.deploy-docs.result == 'success')
+    
+    steps:
+    - name: 🎊 Success Notification
+      run: |
+        echo "🃏 Claude-Jester Desktop Extension workflow completed successfully!"
+        echo "✅ All tests passed"
+        echo "📦 Extension built for all platforms"
+        echo "🔒 Security audits completed"
+        echo "🚀 Release deployed"
+        echo ""
+        echo "🌟 Ready to revolutionize AI-assisted programming!"
+
+  # ===== CLEANUP =====
+  cleanup:
+    name: 🧹 Cleanup
+    runs-on: ubuntu-latest
+    needs: [notify-success]
+    if: always()
+    
+    steps:
+    - name: 🗑️ Cleanup Temporary Artifacts
+      run: |
+        echo "Cleaning up temporary build artifacts..."
+        # This step can be used for cleanup tasks if needed

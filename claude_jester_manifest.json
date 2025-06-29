@@ -1,0 +1,458 @@
+{
+  "dxt_version": "0.1",
+  "name": "claude-jester-quantum-debugger",
+  "version": "3.1.0",
+  "display_name": "Claude-Jester: Quantum Code Debugger Pro",
+  "description": "Revolutionary AI code execution platform with quantum debugging, Podman containerization, and enterprise-grade security. Execute Python, JavaScript, and Bash with real-time performance analysis, parallel algorithm testing, and container isolation.",
+  "author": {
+    "name": "Matthew Stanton",
+    "email": "matthew@claude-jester.dev",
+    "url": "https://github.com/matthewstanton/claude-jester"
+  },
+  "license": "MIT",
+  "homepage": "https://claude-jester.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matthewstanton/claude-jester-desktop-extension"
+  },
+  "keywords": [
+    "code-execution",
+    "quantum-debugging",
+    "containerization",
+    "security",
+    "performance",
+    "mcp",
+    "podman",
+    "enterprise"
+  ],
+  "categories": [
+    "developer-tools",
+    "security",
+    "productivity"
+  ],
+  "icon": "assets/claude-jester-icon.png",
+  "preview_images": [
+    "assets/quantum-debugging-preview.png",
+    "assets/container-execution-preview.png", 
+    "assets/security-analysis-preview.png"
+  ],
+  "server": {
+    "type": "python",
+    "entry_point": "server/claude_jester_desktop.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["${__dirname}/server/claude_jester_desktop.py"],
+      "env": {
+        "CLAUDE_JESTER_MODE": "desktop_extension",
+        "CLAUDE_JESTER_CONFIG_DIR": "${user_config_dir}",
+        "CLAUDE_JESTER_DATA_DIR": "${user_data_dir}",
+        "PYTHONPATH": "${__dirname}/server:${__dirname}/lib"
+      },
+      "platforms": {
+        "win32": {
+          "command": "python.exe",
+          "env": {
+            "TEMP_DIR": "${TEMP}",
+            "CLAUDE_JESTER_PLATFORM": "windows"
+          }
+        },
+        "darwin": {
+          "env": {
+            "TEMP_DIR": "${TMPDIR}",
+            "CLAUDE_JESTER_PLATFORM": "macos"
+          }
+        },
+        "linux": {
+          "env": {
+            "TEMP_DIR": "/tmp",
+            "CLAUDE_JESTER_PLATFORM": "linux"
+          }
+        }
+      }
+    }
+  },
+  "user_config": {
+    "security_level": {
+      "type": "string",
+      "title": "Default Security Level",
+      "description": "Choose the default security level for code execution",
+      "enum": ["maximum", "balanced", "development"],
+      "enumLabels": [
+        "Maximum Security (Isolated containers, no network)",
+        "Balanced (Session containers, moderate security)",
+        "Development (Relaxed security, network access)"
+      ],
+      "default": "balanced",
+      "required": true
+    },
+    "allowed_languages": {
+      "type": "array",
+      "title": "Allowed Programming Languages",
+      "description": "Select which programming languages are allowed for execution",
+      "items": {
+        "type": "string",
+        "enum": ["python", "javascript", "bash", "rust", "go"]
+      },
+      "default": ["python", "javascript", "bash"],
+      "required": true,
+      "multiple": true
+    },
+    "podman_enabled": {
+      "type": "boolean",
+      "title": "Enable Podman Containerization",
+      "description": "Use Podman for enhanced security isolation (requires Podman installation)",
+      "default": true,
+      "required": false
+    },
+    "quantum_debugging_enabled": {
+      "type": "boolean",
+      "title": "Enable Quantum Debugging",
+      "description": "Allow parallel testing of multiple algorithm variants",
+      "default": true,
+      "required": false
+    },
+    "performance_monitoring": {
+      "type": "boolean",
+      "title": "Enable Performance Monitoring",
+      "description": "Track execution times, memory usage, and optimization metrics",
+      "default": true,
+      "required": false
+    },
+    "enterprise_mode": {
+      "type": "boolean",
+      "title": "Enterprise Mode",
+      "description": "Enable enterprise features like audit logging and compliance reporting",
+      "default": false,
+      "required": false
+    },
+    "max_execution_time": {
+      "type": "number",
+      "title": "Maximum Execution Time (seconds)",
+      "description": "Maximum time allowed for code execution (1-300 seconds)",
+      "minimum": 1,
+      "maximum": 300,
+      "default": 30,
+      "required": true
+    },
+    "max_memory_mb": {
+      "type": "number", 
+      "title": "Maximum Memory (MB)",
+      "description": "Maximum memory allocation per execution (64-2048 MB)",
+      "minimum": 64,
+      "maximum": 2048,
+      "default": 256,
+      "required": true
+    },
+    "notification_preferences": {
+      "type": "object",
+      "title": "Desktop Notifications",
+      "description": "Configure desktop notification preferences",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable Notifications",
+          "default": true
+        },
+        "security_alerts": {
+          "type": "boolean",
+          "title": "Security Alert Notifications",
+          "default": true
+        },
+        "performance_insights": {
+          "type": "boolean",
+          "title": "Performance Insight Notifications",
+          "default": false
+        },
+        "quantum_results": {
+          "type": "boolean",
+          "title": "Quantum Debugging Results",
+          "default": true
+        }
+      },
+      "default": {
+        "enabled": true,
+        "security_alerts": true,
+        "performance_insights": false,
+        "quantum_results": true
+      }
+    },
+    "workspace_directory": {
+      "type": "directory",
+      "title": "Workspace Directory",
+      "description": "Directory for storing execution artifacts, logs, and temporary files",
+      "default": "${HOME}/Documents/Claude-Jester",
+      "required": true
+    },
+    "log_level": {
+      "type": "string",
+      "title": "Logging Level",
+      "description": "Set the verbosity of logging output",
+      "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+      "enumLabels": ["Debug (Verbose)", "Info (Standard)", "Warning (Important)", "Error (Critical Only)"],
+      "default": "INFO",
+      "required": true
+    }
+  },
+  "tools": [
+    {
+      "name": "execute_code",
+      "description": "Execute code with quantum debugging, security analysis, and performance monitoring",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": ["python", "javascript", "bash", "slash"],
+            "description": "Programming language or 'slash' for advanced commands"
+          },
+          "code": {
+            "type": "string",
+            "description": "Code to execute or slash command (e.g., '/quantum optimize sorting')"
+          },
+          "security_level": {
+            "type": "string",
+            "enum": ["maximum", "balanced", "development"],
+            "description": "Override default security level for this execution"
+          },
+          "enable_quantum": {
+            "type": "boolean",
+            "description": "Enable quantum debugging for algorithm optimization"
+          }
+        },
+        "required": ["language", "code"]
+      }
+    },
+    {
+      "name": "quantum_debug",
+      "description": "Advanced quantum debugging with parallel algorithm testing",
+      "input_schema": {
+        "type": "object", 
+        "properties": {
+          "task_description": {
+            "type": "string",
+            "description": "Description of the algorithm optimization task"
+          },
+          "test_data_size": {
+            "type": "number",
+            "description": "Size of test data for performance benchmarking"
+          },
+          "iterations": {
+            "type": "number",
+            "description": "Number of iterations for statistical analysis"
+          }
+        },
+        "required": ["task_description"]
+      }
+    },
+    {
+      "name": "security_scan",
+      "description": "Comprehensive security analysis of code",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Code to analyze for security vulnerabilities"
+          },
+          "language": {
+            "type": "string",
+            "enum": ["python", "javascript", "bash"],
+            "description": "Programming language of the code"
+          },
+          "scan_level": {
+            "type": "string",
+            "enum": ["basic", "comprehensive", "enterprise"],
+            "description": "Depth of security analysis"
+          }
+        },
+        "required": ["code", "language"]
+      }
+    },
+    {
+      "name": "performance_benchmark",
+      "description": "Statistical performance analysis with optimization recommendations",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Code to benchmark"
+          },
+          "language": {
+            "type": "string",
+            "enum": ["python", "javascript", "bash"],
+            "description": "Programming language"
+          },
+          "iterations": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Number of benchmark iterations"
+          }
+        },
+        "required": ["code", "language"]
+      }
+    },
+    {
+      "name": "container_management",
+      "description": "Manage Podman containers and execution environments",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["list", "cleanup", "status", "logs"],
+            "description": "Container management action"
+          },
+          "container_id": {
+            "type": "string",
+            "description": "Specific container ID (optional)"
+          }
+        },
+        "required": ["action"]
+      }
+    },
+    {
+      "name": "system_diagnostics",
+      "description": "System health check and performance diagnostics",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "component": {
+            "type": "string",
+            "enum": ["all", "podman", "performance", "security", "storage"],
+            "description": "System component to diagnose"
+          },
+          "detailed": {
+            "type": "boolean",
+            "description": "Include detailed diagnostic information"
+          }
+        },
+        "required": ["component"]
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "quantum_optimization",
+      "description": "Optimize algorithm performance using quantum debugging",
+      "arguments": [
+        {
+          "name": "algorithm_type",
+          "description": "Type of algorithm to optimize (sorting, searching, mathematical, etc.)",
+          "required": true
+        },
+        {
+          "name": "performance_target",
+          "description": "Performance improvement target (e.g., '2x faster', '50% less memory')",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "security_assessment",
+      "description": "Comprehensive security assessment of code or project",
+      "arguments": [
+        {
+          "name": "code_or_project",
+          "description": "Code snippet or project path to assess",
+          "required": true
+        },
+        {
+          "name": "compliance_framework",
+          "description": "Security compliance framework (OWASP, SOC2, ISO27001, etc.)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "performance_profiling",
+      "description": "Deep performance analysis and optimization recommendations",
+      "arguments": [
+        {
+          "name": "code_to_profile",
+          "description": "Code or function to profile",
+          "required": true
+        },
+        {
+          "name": "profiling_depth",
+          "description": "Profiling depth (basic, detailed, comprehensive)",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "file_system": {
+      "read": true,
+      "write": true,
+      "create_directories": true,
+      "description": "Access to workspace directory for storing execution artifacts and logs"
+    },
+    "network": {
+      "outbound": false,
+      "description": "No network access by default for security (can be enabled in development mode)"
+    },
+    "system": {
+      "notifications": true,
+      "clipboard": true,
+      "environment_variables": true,
+      "description": "Desktop integration features"
+    },
+    "containers": {
+      "podman": true,
+      "docker": false,
+      "description": "Podman containerization support for enhanced security"
+    }
+  },
+  "security": {
+    "sandbox_level": "high",
+    "network_isolation": true,
+    "file_system_isolation": true,
+    "resource_limits": true,
+    "audit_logging": true,
+    "encryption": {
+      "user_config": true,
+      "execution_logs": true,
+      "performance_data": false
+    }
+  },
+  "requirements": {
+    "python": {
+      "version": ">=3.8",
+      "packages": [
+        "asyncio>=3.4.3",
+        "aiofiles>=0.8.0",
+        "psutil>=5.8.0",
+        "cryptography>=3.4.0",
+        "pyjwt>=2.4.0"
+      ]
+    },
+    "system": {
+      "optional": {
+        "podman": ">=3.0.0",
+        "nodejs": ">=14.0.0"
+      },
+      "disk_space": "100MB",
+      "memory": "256MB"
+    }
+  },
+  "update_policy": {
+    "auto_update": true,
+    "update_channel": "stable",
+    "rollback_enabled": true,
+    "pre_release": false
+  },
+  "telemetry": {
+    "enabled": false,
+    "opt_in": true,
+    "anonymous": true,
+    "description": "Optional anonymous usage analytics to improve the extension"
+  },
+  "enterprise": {
+    "group_policy_support": true,
+    "sso_integration": false,
+    "audit_compliance": ["SOC2", "ISO27001"],
+    "custom_registries": true
+  }
+}
