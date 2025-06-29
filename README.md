@@ -1,9 +1,9 @@
 # 🃏 Claude-Jester: "Quantum" Code Debugger Desktop Extension
 
-[![Build Status](https://github.com/matthewstanton/claude-jester/workflows/🃏%20Claude-Jester%20Desktop%20Extension/badge.svg)](https://github.com/matthewstanton/claude-jester/actions)
-[![Security Rating](https://img.shields.io/badge/security-A+-green.svg)](https://github.com/matthewstanton/claude-jester/security)
+[![Build Status](https://github.com/mstanton/claude-jester/workflows/🃏%20Claude-Jester%20Desktop%20Extension/badge.svg)](https://github.com/mstanton/claude-jester/actions)
+[![Security Rating](https://img.shields.io/badge/security-A+-green.svg)](https://github.com/mstanton/claude-jester/security)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Extension Version](https://img.shields.io/badge/extension-v3.1.0-blue.svg)](https://github.com/matthewstanton/claude-jester/releases)
+[![Extension Version](https://img.shields.io/badge/extension-v3.1.0-blue.svg)](https://github.com/mstanton/claude-jester/releases)
 
 > **Revolutionary AI code execution platform with "quantum" debugging, enterprise-grade security, and desktop integration.**
 
@@ -133,6 +133,6 @@ python scripts/build.py
 
 ---
 
-*Built with ❤️ by [Matthew Stanton](https://github.com/matthewstanton)
+*Built with ❤️ by [Matthew Stanton](https://github.com/mstanton)
 
 *Licensed under [MIT License](LICENSE) • [Security Policy](SECURITY.md) • [Code of Conduct](CODE_OF_CONDUCT.md)*
