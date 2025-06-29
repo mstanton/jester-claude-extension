@@ -21,7 +21,7 @@ Transform your AI programming experience from simple code generation to intellig
 
 ## ⚡ Quick Start (15 seconds)
 
-1. **Download**: Get `claude-jester-quantum-debugger-3.1.0.dxt` from [releases](https://github.com/matthewstanton/claude-jester/releases)
+1. **Download**: Get `claude-jester-quantum-debugger-3.1.0.dxt` from [releases](https://github.com/mstanton/claude-jester/releases)
 2. **Install**: Drag the `.dxt` file into Claude Desktop Settings > Extensions
 3. **Configure**: Set your security preferences (optional)
 4. **Use**: Type `/quantum optimize my sorting algorithm` and watch the magic! ✨
