@@ -83,19 +83,6 @@ Please include the following information:
    - Organization (if applicable)
    - Preferred communication method
 
-### 🏆 Security Research Program
-
-We recognize and reward security researchers who help improve Claude-Jester:
-
-#### Reward Tiers
-- **Critical**: $5,000 - $10,000 USD
-- **High**: $1,000 - $5,000 USD
-- **Medium**: $500 - $1,000 USD
-- **Low**: $100 - $500 USD
-- **Recognition**: Hall of Fame listing
-
-## 🔍 Security Assessment Results
-
 ### Third-Party Security Audits
 
 #### Q4 2023 - Penetration Testing
@@ -140,7 +127,3 @@ We recognize and reward security researchers who help improve Claude-Jester:
 - **Rollback capability**: Automatic fallback procedures
 
 ---
-
-*This security policy is reviewed quarterly and updated as needed.*
-
-*For questions about this security policy, contact: security@claude-jester.dev*
