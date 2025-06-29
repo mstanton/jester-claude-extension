@@ -119,7 +119,7 @@ Transform your AI programming experience from simple code generation to intellig
 
 ### Method 2: Build from Source
 ```bash
-git clone https://github.com/matthewstanton/claude-jester-desktop-extension
+git clone https://github.com/mstanton/claude-jester-desktop-extension
 cd claude-jester-desktop-extension
 python scripts/build.py
 ```
