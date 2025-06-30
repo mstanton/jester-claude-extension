@@ -500,7 +500,7 @@ echo "🔧 Configure the extension in Settings > Extensions"
 ## Support
 
 - Documentation: https://claude-jester.dev
-- Issues: https://github.com/matthewstanton/claude-jester/issues
+- Issues: https://github.com/mstanton/claude-jester/issues
 - Security: security@claude-jester.dev
 '''
         

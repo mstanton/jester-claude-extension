@@ -294,7 +294,7 @@ All settings are configured through Claude Desktop's extension settings panel:
 ## Support
 
 - Documentation: https://claude-jester.dev/docs
-- Issues: https://github.com/matthewstanton/claude-jester/issues
+- Issues: https://github.com/mstanton/claude-jester/issues
 - Security: security@claude-jester.dev
 ```
 

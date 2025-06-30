@@ -5,10 +5,10 @@
 ```markdown
 # 🃏 Claude-Jester: Quantum Code Debugger Desktop Extension
 
-[![Build Status](https://github.com/matthewstanton/claude-jester/workflows/🃏%20Claude-Jester%20Desktop%20Extension/badge.svg)](https://github.com/matthewstanton/claude-jester/actions)
-[![Security Rating](https://img.shields.io/badge/security-A+-green.svg)](https://github.com/matthewstanton/claude-jester/security)
+[![Build Status](https://github.com/mstanton/claude-jester/workflows/🃏%20Claude-Jester%20Desktop%20Extension/badge.svg)](https://github.com/mstanton/claude-jester/actions)
+[![Security Rating](https://img.shields.io/badge/security-A+-green.svg)](https://github.com/mstanton/claude-jester/security)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Extension Version](https://img.shields.io/badge/extension-v3.1.0-blue.svg)](https://github.com/matthewstanton/claude-jester/releases)
+[![Extension Version](https://img.shields.io/badge/extension-v3.1.0-blue.svg)](https://github.com/mstanton/claude-jester/releases)
 
 > **Revolutionary AI code execution platform with quantum debugging, enterprise-grade security, and desktop integration.**
 
@@ -26,7 +26,7 @@ Transform your AI programming experience from simple code generation to intellig
 
 ## ⚡ Quick Start (15 seconds)
 
-1. **Download**: Get `claude-jester-quantum-debugger-3.1.0.dxt` from [releases](https://github.com/matthewstanton/claude-jester/releases)
+1. **Download**: Get `claude-jester-quantum-debugger-3.1.0.dxt` from [releases](https://github.com/mstanton/claude-jester/releases)
 2. **Install**: Drag the `.dxt` file into Claude Desktop Settings > Extensions
 3. **Configure**: Set your security preferences (optional)
 4. **Use**: Type `/quantum optimize my sorting algorithm` and watch the magic! ✨
@@ -344,11 +344,11 @@ Transform AI programming from code generation to intelligent partnership:
 
 **Download Claude-Jester Desktop Extension today and experience the future of AI-assisted programming!**
 
-[📥 Download Latest Release](https://github.com/matthewstanton/claude-jester/releases/latest) | [📚 Read the Docs](https://claude-jester.dev) | [🎥 Watch Demo](https://claude-jester.dev/demo)
+[📥 Download Latest Release](https://github.com/mstanton/claude-jester/releases/latest) | [📚 Read the Docs](https://claude-jester.dev) | [🎥 Watch Demo](https://claude-jester.dev/demo)
 
 ---
 
-*Built with ❤️ by [Matthew Stanton](https://github.com/matthewstanton) and the Claude-Jester community*
+*Built with ❤️ by [Matthew Stanton](https://github.com/mstanton) and the Claude-Jester community*
 
 *Licensed under [MIT License](LICENSE) • [Security Policy](SECURITY.md) • [Code of Conduct](CODE_OF_CONDUCT.md)*
 ```

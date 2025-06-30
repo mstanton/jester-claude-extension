@@ -7,13 +7,13 @@
   "author": {
     "name": "Matthew Stanton",
     "email": "matthew@claude-jester.dev",
-    "url": "https://github.com/matthewstanton/claude-jester"
+    "url": "https://github.com/mstanton/claude-jester"
   },
   "license": "MIT",
   "homepage": "https://claude-jester.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/matthewstanton/claude-jester-desktop-extension"
+    "url": "https://github.com/mstanton/claude-jester-desktop-extension"
   },
   "keywords": [
     "code-execution",

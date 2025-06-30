@@ -15,7 +15,7 @@ We welcome contributions to the Claude-Jester Desktop Extension! This document p
 
 ```bash
 # Clone the repository
-git clone https://github.com/matthewstanton/claude-jester-desktop-extension.git
+git clone https://github.com/mstanton/claude-jester-desktop-extension.git
 cd claude-jester-desktop-extension
 
 # Create virtual environment
